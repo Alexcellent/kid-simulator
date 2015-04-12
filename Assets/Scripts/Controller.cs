@@ -59,10 +59,10 @@ public class Controller : MonoBehaviour {
 	        return;
 	    }
 
-	    foreach (var g in Groups)
-	    {
-	        g.AssignCollisionLayers();
-	    }
+        foreach (var g in Groups)
+        {
+            g.AssignCollisionLayers();
+        }
 
 	    
 	    // Present choices

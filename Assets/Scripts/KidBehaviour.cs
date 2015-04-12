@@ -37,14 +37,14 @@ public class KidBehaviour : MonoBehaviour
     Vector2 _intialVelocity;
     Vector2 _flockVelocity;
     
+    float _invincibleTimer = 0f;
     float _wanderTimer;
 
     /////////////////////////////////////////////
     // ATTRIBUTES
     public bool glasses3D;
-    public bool sunglasses;
     public bool propBeanie;
-    public bool baseballCap;
+
 
     /////////////////////////////////////////////
     // NEIGHBORS
@@ -75,6 +75,7 @@ public class KidBehaviour : MonoBehaviour
 
     void Update()
     {
+        //UpdateInvincible();
         UpdateAnimation();
     }
 
@@ -87,6 +88,7 @@ public class KidBehaviour : MonoBehaviour
             return;
         }
 
+        if (_invincibleTimer > 0) return;
         // Check behaviour type
         if (Group)
             FlockMovement();
@@ -133,6 +135,7 @@ public class KidBehaviour : MonoBehaviour
                     k.Group.Kids.Remove(col.gameObject);
                 }
                 col.gameObject.layer = 8;
+
             }
             else
             {
@@ -150,6 +153,21 @@ public class KidBehaviour : MonoBehaviour
         }
     }
 
+    void UpdateInvincible()
+    {
+        if (Wedgied || !GameObject.Find("Controller").GetComponent<Controller>().GameStarted) return;
+        
+        _invincibleTimer = Mathf.Max(0, _invincibleTimer - Time.deltaTime);
+        if (_invincibleTimer > 0)
+        {
+            gameObject.layer = 8;
+        }
+        else
+        {
+            if (Group) gameObject.layer = Group.LayerID;
+        }
+    }
+
     void UpdateAnimation()
     {
         // Update Animation
@@ -160,8 +178,9 @@ public class KidBehaviour : MonoBehaviour
         else
         {
             _anim.SetFloat("Direction", rigidbody2D.velocity.x);
-            _anim.SetFloat("Magnitude", rigidbody2D.velocity.magnitude);
         }
+
+        renderer.sortingOrder = (int)(100 * -transform.position.y);
     }
 
     void ResetAll()
