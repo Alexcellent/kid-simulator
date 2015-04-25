@@ -81,8 +81,8 @@ TextureImporter:
         y: 43
         width: 23
         height: 28
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 9
+      pivot: {x: .516923487, y: .402689248}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: right_2
       rect:
@@ -91,8 +91,8 @@ TextureImporter:
         y: 43
         width: 23
         height: 28
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 9
+      pivot: {x: .508461654, y: .388787687}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: wedgied_right_0
       rect:
@@ -141,8 +141,8 @@ TextureImporter:
         y: 6
         width: 23
         height: 28
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 9
+      pivot: {x: .508461833, y: .388787597}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: left_1
       rect:
@@ -151,8 +151,8 @@ TextureImporter:
         y: 6
         width: 23
         height: 28
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 9
+      pivot: {x: .508462012, y: .388787597}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: left_0
       rect:

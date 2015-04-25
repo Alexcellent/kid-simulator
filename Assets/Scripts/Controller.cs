@@ -25,82 +25,160 @@ public class Controller : MonoBehaviour {
     public int              NumKids;
 
     /////////////////////////////////////////////
-    // COLLISIONS
-
-    /////////////////////////////////////////////
     // GAME LOGIC
+    public bool  Assigned = false;
     public float StartDelay;
     public bool  GameStarted;
+    public float GameTimer;
     public bool  GameEnd;
-    public int   Wedgies = 0;
+    public float GameEndTimer;
+    
 
-	void Start () {
+    /////////////////////////////////////////////
+    // ATTRIBUTES
+    public enum Attribute
+    {
+        none,
+        glass3D,
+        beanie
+    };
+    public Attribute Choice;
+
+    ////////////////////////////////////////////
+    // GUI
+    public int Wedgies = 0;
+    public TextMesh Value;
+    public TextMesh Timer;
+
+    ////////////////////////////////////////////
+    // SOUND
+    public AudioClip BellSound;
+    public AudioClip BackGroundSound;
+
+	void Start ()
+	{
+
+	    Choice = Attribute.none;
+        
+        AudioSource.PlayClipAtPoint(BackGroundSound, transform.position);
 
         InitializeCollisionIgnore();
 
         for (int i = 0; i < NumKids; i++)
         {
-            var position = new Vector2(Random.Range(-2F, 2F), Random.Range(-1F, 0.25F));
-            var newKid = (GameObject)Instantiate(KidPrefabs[Random.Range(0,KidPrefabs.Length)], position, Quaternion.identity);
+            var position = new Vector2(Random.Range(-2F, 2F), Random.Range(-0.8F, -0.1F));
+            var newKid = (GameObject)Instantiate(KidPrefabs[Random.Range(0,100) % 3], position, Quaternion.identity);
             Kids.Add(newKid);
         }
-
-        AssignGroups();
 	}
 	
 	void Update ()
 	{
+        // Udpate GUI
+        UpdateHUD();
+
+        // Until Choice, do nothing
+	    if (Choice == Attribute.none) return;
+
+        // Assign groups once
+	    if (!Assigned)
+	    {
+	        Assigned = true;
+            AssignGroups();
+	    }
 
 	    // CHECK GAME START
         if (!GameStarted)
 	    {
 	        StartDelay  = Mathf.Max(StartDelay - Time.deltaTime, 0);
             GameStarted = (StartDelay <= 0f);
+
+	        if (GameStarted)
+	        {
+                AudioSource.PlayClipAtPoint(BellSound, transform.position);
+
+	            GameTimer = 15f;
+                foreach (var g in Groups)
+                {
+                    g.AssignCollisionLayers();
+                }
+	        }
+
 	        return;
 	    }
 
-        foreach (var g in Groups)
-        {
-            g.AssignCollisionLayers();
-        }
-
-	    
-	    // Present choices
-
-	    // On input, split groups
-
-	    // Countdown 5 seconds until recess start
-
-	    // Groups allowed to wander, wedgies continue
-	    // until 30seconds up or groups equal in size
         WinCondition();
 
-	    // Output score and appicable message
-	    // Play again? Y / N
-
+	    if (GameEnd)
+	    {
+	        GameEndTimer = Mathf.Max(0, GameEndTimer - Time.deltaTime);
+            if (GameEndTimer <= 0f) Application.LoadLevel("test");
+	    }
 	}
+
+    void UpdateHUD()
+    {
+        Value.text = "x " + Wedgies.ToString();
+        Timer.text = "Recess ends in: " + GameTimer.ToString("0.00");
+    }
 
     void AssignGroups()
     {
         foreach (var k in Kids)
         {
-            if (k.layer == 9)
+
+            switch (Choice)
             {
-                k.layer = 8;
-                Groups[0].Kids.Add(k);
-                k.GetComponent<KidBehaviour>().Group = Groups[0];
+                case Attribute.glass3D:
+                    if (k.GetComponent<KidBehaviour>().propBeanie) // Assign 'lame'kids to 1 group
+                    {
+                        k.layer = 8;
+                        Groups[0].Kids.Add(k);
+                        k.GetComponent<KidBehaviour>().Group = Groups[0];
+                    }
+                    else // Assign 'cool' kids and naked followers to other
+                    {
+                        k.layer = 8;
+                        Groups[1].Kids.Add(k);
+                        k.GetComponent<KidBehaviour>().Group = Groups[1];
+                    }
+                    break;
+
+                case Attribute.beanie:
+                    if (k.GetComponent<KidBehaviour>().glasses3D)
+                    {
+                        k.layer = 8;
+                        Groups[0].Kids.Add(k);
+                        k.GetComponent<KidBehaviour>().Group = Groups[0];
+                    }
+                    else
+                    {
+                        k.layer = 8;
+                        Groups[1].Kids.Add(k);
+                        k.GetComponent<KidBehaviour>().Group = Groups[1];
+                    }
+                    break;
             }
-            else
-            {
-                k.layer = 8;
-                Groups[1].Kids.Add(k);
-                k.GetComponent<KidBehaviour>().Group = Groups[1];
-            }
+            
         }
     }
 
     void WinCondition()
     {
+
+        GameTimer = Mathf.Max(0, GameTimer - Time.deltaTime);
+        if (GameTimer <= 0f && !GameEnd)
+        {
+            GameEnd = true;
+            foreach (var g in Groups)
+            {
+                g.AssignCollisionLayers(true);
+            }
+            AudioSource.PlayClipAtPoint(BellSound, transform.position);
+            return;
+        }
+
+
         foreach(var i in Groups)
         {
             if (i.Kids.Count == 0) continue;
@@ -114,11 +192,17 @@ public class Controller : MonoBehaviour {
             }
         }
 
-        GameEnd = true;
-        foreach (var g in Groups)
-        {
-            g.AssignCollisionLayers(true);
+        if (!GameEnd) { 
+            GameEnd = true;
+            foreach (var g in Groups)
+            {
+                g.AssignCollisionLayers(true);
+            }
+            GameEndTimer = 10f;
+
+            AudioSource.PlayClipAtPoint(BellSound, transform.position);
         }
+
     }
 
     void InitializeCollisionIgnore()

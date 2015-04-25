@@ -35,7 +35,6 @@ public class KidBehaviour : MonoBehaviour
     Vector2 _cohesion;
     Vector2 _seek;
     Vector2 _intialVelocity;
-    Vector2 _flockVelocity;
     
     float _invincibleTimer = 0f;
     float _wanderTimer;
@@ -58,6 +57,7 @@ public class KidBehaviour : MonoBehaviour
     // ANIMATION
     public string SpriteSheetName;
     Animator      _anim;
+    public AudioClip WedgieSound;
 
     void Start()
     {
@@ -112,9 +112,8 @@ public class KidBehaviour : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D col)
     {
-        if (col.tag == "Kid" && !Group.Kids.Contains(col.gameObject) && !Wedgied)
+        if (Group && col.tag == "Kid" && !Group.Kids.Contains(col.gameObject) && !Wedgied)
         {
-            // TODO: 75% chance to win if group bigger
             var k = col.GetComponent<KidBehaviour>();
             
             // Get probablility based on Group size
@@ -135,6 +134,8 @@ public class KidBehaviour : MonoBehaviour
                     k.Group.Kids.Remove(col.gameObject);
                 }
                 col.gameObject.layer = 8;
+                AudioSource.PlayClipAtPoint(WedgieSound, transform.position);
+                GameObject.Find("Controller").GetComponent<Controller>().Wedgies++;
 
             }
             else
@@ -148,23 +149,8 @@ public class KidBehaviour : MonoBehaviour
                 gameObject.layer = 8;
             }
 
-            GameObject.Find("Controller").GetComponent<Controller>().Wedgies++;
+            
 
-        }
-    }
-
-    void UpdateInvincible()
-    {
-        if (Wedgied || !GameObject.Find("Controller").GetComponent<Controller>().GameStarted) return;
-        
-        _invincibleTimer = Mathf.Max(0, _invincibleTimer - Time.deltaTime);
-        if (_invincibleTimer > 0)
-        {
-            gameObject.layer = 8;
-        }
-        else
-        {
-            if (Group) gameObject.layer = Group.LayerID;
         }
     }
 
@@ -190,7 +176,6 @@ public class KidBehaviour : MonoBehaviour
         _alignment      = Vector2.zero;
         _cohesion       = Vector2.zero;
         _intialVelocity = Vector2.zero;
-        _flockVelocity  = Vector2.zero;
 
         // Reset actual velocity
         rigidbody2D.velocity = Vector2.zero;

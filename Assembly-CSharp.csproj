@@ -46,9 +46,14 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\Button.cs" />
      <Compile Include="Assets\Scripts\Controller.cs" />
      <Compile Include="Assets\Scripts\GroupBehaviour.cs" />
      <Compile Include="Assets\Scripts\KidBehaviour.cs" />
+     <Compile Include="Assets\Scripts\Score.cs" />
+     <None Include="Assets\Sounds\SourcesForSound.txt" />
+     <None Include="Assets\Fonts\FONTLOG.txt" />
+     <None Include="Assets\Fonts\LICENSE.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/4.6.0/UnityEngine.UI.dll</HintPath>
  </Reference>

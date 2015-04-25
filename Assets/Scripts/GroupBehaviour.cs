@@ -15,6 +15,10 @@ using System.Collections.Generic;
 public class GroupBehaviour : MonoBehaviour
 {
     //////////////////////////////////////////////
+    // CONTROLLER
+    public Controller Controller;
+    
+    //////////////////////////////////////////////
     // GROUP DATA
     public int              LayerID; 
     public List<GameObject> Kids;
@@ -41,7 +45,7 @@ public class GroupBehaviour : MonoBehaviour
 
     void UpdateTarget()
     {
-        var Groups  = GameObject.Find("Controller").GetComponent<Controller>().Groups;
+        var Groups  = Controller.Groups;
         var minDist = float.MaxValue;
         _target     = null;
         foreach (var g in Groups)
@@ -60,9 +64,9 @@ public class GroupBehaviour : MonoBehaviour
 
     void UpdateMovement()
     {
-        if (!GameObject.Find("Controller").GetComponent<Controller>().GameStarted) return;
+        if (!Controller.GameStarted) return;
 
-        if (_target && (_target.transform.position - transform.position).magnitude < TargetRadius)
+        if (!Controller.GameEnd && _target && (_target.transform.position - transform.position).magnitude < TargetRadius)
         {
             if (_target.Kids.Count > Kids.Count)
             {
@@ -81,7 +85,8 @@ public class GroupBehaviour : MonoBehaviour
 
     void Seek()
     {
-        var agro   = Mathf.Abs(Kids.Count - _target.Kids.Count) / 2f; // TODO: Play around with this
+        // If group bigger, chase faster
+        var agro   = (Kids.Count - _target.Kids.Count) / 2f; // TODO: Play around with this
         _direction = _target.transform.position - transform.position;
         rigidbody2D.velocity = (_direction.normalized) * agro *  SeekSpeed;
         Debug.Log("Seek" + LayerID);
@@ -89,9 +94,8 @@ public class GroupBehaviour : MonoBehaviour
 
     void Flee()
     {
-        var scare =  Mathf.Abs(Kids.Count - _target.Kids.Count) / 2f; // TODO: Play around with this
         _direction = transform.position - _target.transform.position;
-        rigidbody2D.velocity = (_direction.normalized) * scare * FleeSpeed;
+        rigidbody2D.velocity = (_direction.normalized) * FleeSpeed;
         Debug.Log("Flee" + LayerID);
 
     }
